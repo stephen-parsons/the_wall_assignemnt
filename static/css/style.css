@@ -1,0 +1,77 @@
+body {
+	padding: 0px;
+	margin: auto;
+}
+#header h1, p {
+	padding: 0px;
+	margin: 0px;
+}
+#header {
+	display: flex;
+	justify-content: space-between;
+	padding: 10px;
+	border-bottom: 2px solid black;
+	margin-bottom: 20px; 
+}
+#header p {
+	color: red;
+}
+#corner_toolbar {
+	display: inline-block;
+}
+#corner_toolbar a {
+	float: right;
+}
+
+/*content*/
+
+.centertext {
+	text-align: center;
+}
+#content h1 {
+	margin-top: 0px;
+}
+#content {
+	margin: auto;
+	width: 400px;
+	border: 1px solid black;
+	padding: 10px;
+}
+#content form {
+	width: 350px;
+	margin: auto;
+}
+form p {
+	margin: 0;
+	display: inline-block
+}
+form div input, select {
+ 	width: 150px;
+}
+form div {
+	display: flex;
+	justify-content: space-between;
+}
+.flash {
+	color: red;
+	font-weight: bold; 
+}
+
+/*PROCESS*/
+
+h2 {
+	text-decoration: underline;
+}	
+ul {
+	list-style-type: none;
+}
+
+/*WALL*/
+
+.indent {
+	margin-left: 20px;
+}
+.comment {
+	margin-right: 500px;
+/*	margin-left: 1em;*/
+}

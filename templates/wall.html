@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<title>The Wall</title>
+</head>
+<body>
+	<div id="header">
+		<h1>CodingDojo Wall</h1>
+		<div id="corner_toolbar">
+			<p>Welcome {{session['user_name']}}</p>
+			<a href="/logout">Log Off</a>
+		</div>
+	</div>
+	<div class="container">
+		<h4>Post a message</h4>
+		<div class="form-group">
+			<form action="/submit_message" method="post">
+				<textarea class="form-control" rows="5" name="message"></textarea><br>
+<!-- 				<input type="file" name="image"><br> -->
+				<button type="submit" name="submit" value="Submit">Post Message</button>
+			</form>
+		</div>
+		<div id="messages">
+			{% if messages != [] %}
+				{% for message in messages %}
+				<h5>Message #{{message['message_id']}} - {{message['name']}} - {{message['timestamp']}}</h5>
+				<p>
+					{{message['message']}}	
+					{% if message['user_id'] == session['user_id']%}
+					<form>
+						<button formaction="/delete_msg/{{message['message_id']}}" formmethod="post">Delete message</button>
+					</form>	
+					{% endif %}
+				</p>
+				<div id="comments" class="indent">
+					{% for comment in comments %}
+						{% if comment['message_id'] == message['message_id'] %}
+					<h5>{{comment['name']}} - {{comment['timestamp']}}</h5>
+					<p>{{comment['comment']}}</p>
+						{% endif %}
+					{% endfor %}	
+					<div class="form-group">
+						<form class="comment" action="/submit_comment/{{message['message_id']}}" method="post">
+<!-- 							<input type="hidden" value="{{message['message_id']}}" name="message_id"> -->
+							<textarea class="form-control" rows="2" name="comment"></textarea><br>
+							<button type="submit" name="submit" value="Submit">Post Comment</button>
+						</form>
+					</div>
+				</div>
+				{% endfor %} 
+			{% endif %}
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login Page</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+	<div id="process_content">
+		{% with messages = get_flashed_messages() %}
+				{% if messages %}
+			      	{% for message in messages %}
+			      	<div class="flash">
+			        	<p>{{message}}</p>
+			        </div>
+			    	{% endfor %}
+				{% endif %}
+			{% endwith %}
+		<h2>Successfully Logged In!</h2>
+		<ul>
+			<li>Email: {{email}}</li>
+		</ul>
+		<br>
+		<form>
+			<button type="submit" formaction="/wall" formmethod="get">Proceed to the Wall</button>
+		</form>
+	</div>
+</body>
+</html>

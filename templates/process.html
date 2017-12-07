@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Success Page</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+	<div id="process_content">
+		{% with messages = get_flashed_messages() %}
+				{% if messages %}
+			      	{% for message in messages %}
+			      	<div class="flash">
+			        	<p>{{message}}</p>
+			        </div>
+			    	{% endfor %}
+				{% endif %}
+			{% endwith %}
+		<h2>Successfully Registered!</h2>
+		<ul>
+			<li>First name: {{first_name}}</li>
+			<li>Last name: {{last_name}}</li>
+			<li>Email: {{email}}</li>
+		</ul>
+		<form>
+			<button type="submit" formaction="/wall" formmethod="get">Proceed to the Wall</button>
+		</form>
+	</div>
+</body>
+</html>
