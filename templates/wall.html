@@ -13,7 +13,7 @@
 	<title>The Wall</title>
 </head>
 <body>
-	<div id="header">
+	<div id="header" class="navbar-fixed-top">
 		<h1>CodingDojo Wall</h1>
 		<div id="corner_toolbar">
 			<p>Welcome {{session['user_name']}}</p>
@@ -21,11 +21,12 @@
 		</div>
 	</div>
 	<div class="container">
-		<h4>Post a message</h4>
 		<div class="form-group">
-			<form action="/submit_message" method="post">
-				<textarea class="form-control" rows="5" name="message"></textarea><br>
-<!-- 				<input type="file" name="image"><br> -->
+			<h4>Post a message</h4>
+			<form action="/submit_message" method="post" enctype="multipart/form-data">
+				<textarea class="form-control" rows="5" name="message"></textarea>
+				<label for="file">Upload an image!</label>
+				<input type="file" name="file"><br>
 				<button type="submit" name="submit" value="Submit">Post Message</button>
 			</form>
 		</div>
@@ -35,12 +36,21 @@
 				<h5>Message #{{message['message_id']}} - {{message['name']}} - {{message['timestamp']}}</h5>
 				<p>
 					{{message['message']}}	
+				</p>
+					{% if message['filename'] != None %}
+						{% if message['filename'].endswith('.mp4'): %}
+						<video width="400" controls>
+  							<source src="static/uploads/{{message['filename']}}" type="video/mp4">
+  						</video>
+						{% else: %}
+						<img src="static/uploads/{{message['filename']}}" alt="bad dir"><br><br>
+						{% endif %}
+					{% endif %}
 					{% if message['user_id'] == session['user_id']%}
 					<form>
 						<button formaction="/delete_msg/{{message['message_id']}}" formmethod="post">Delete message</button>
-					</form>	
-					{% endif %}
-				</p>
+					</form><br>	
+					{% endif %}	
 				<div id="comments" class="indent">
 					{% for comment in comments %}
 						{% if comment['message_id'] == message['message_id'] %}

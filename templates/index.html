@@ -3,6 +3,14 @@
 <head>
 	<title>Registration Page</title>
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 	<div id="header">
@@ -12,10 +20,10 @@
 		{% endif %}
 	</div>
 	<div id="content">
-		<h1>Registration Form</h1>
+		<h1>Registration Form:</h1>
 		<p>Please fill out completely</p>
-		<br>
-		<form action="/process" method="post">
+<!-- 		<br>
+ -->		<form action="/process" method="post">
 			{% with messages = get_flashed_messages() %}
 				{% if messages %}
 			      	{% for message in messages %}

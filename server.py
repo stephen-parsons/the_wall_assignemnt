@@ -8,11 +8,21 @@ import re
 import datetime
 import md5
 import os, binascii # include this at the top of your file
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif', 'mp4'])
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 app.secret_key = "myKey"
 mysql = MySQLConnector(app, 'wall_assignment')
+
+def allowed_file(filename):
+    return '.' in filename and \
+    	filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -80,7 +90,7 @@ def get_info():
 @app.route('/wall')
 def wall():
 # query that gets data of all messages from db
-	query = "SELECT CONCAT_WS(' ', users.first_name, users.last_name) as name, CONCAT(DATE_FORMAT(messages.created_at, '%M %D %Y'),' at ', TIME_FORMAT(messages.created_at, '%r')) as timestamp, messages.id as message_id, messages.message as message, messages.user_id as user_id FROM messages JOIN users on users.id = messages.user_id"
+	query = "SELECT CONCAT_WS(' ', users.first_name, users.last_name) as name, CONCAT(DATE_FORMAT(messages.created_at, '%M %D %Y'),' at ', TIME_FORMAT(messages.created_at, '%r')) as timestamp, messages.id as message_id, messages.message as message, messages.user_id as user_id, messages.filename as filename FROM messages JOIN users on users.id = messages.user_id"
 	messages = mysql.query_db(query)
 	query = "SELECT CONCAT_WS(' ', users.first_name, users.last_name) as name, CONCAT(DATE_FORMAT(comments.created_at, '%M %D %Y'),' at ', TIME_FORMAT(comments.created_at, '%r')) as timestamp, comments.id as comment_id, comments.comment as comment, comments.message_id as message_id FROM comments JOIN users on users.id = comments.user_id"
 	comments = mysql.query_db(query)
@@ -88,11 +98,17 @@ def wall():
 #
 @app.route('/submit_message', methods=["POST"])
 def submit_message():
-# query that inserts message data to db
-	query = "INSERT INTO messages (message, created_at, updated_at, user_id) VALUES (:message, NOW(), NOW(), :user_id)"
+	#check file input
+	file = request.files['file']
+	if file and allowed_file(file.filename):
+		filename = secure_filename(file.filename)
+		file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+	# query that inserts message data to db
+	query = "INSERT INTO messages (message, created_at, updated_at, user_id, filename) VALUES (:message, NOW(), NOW(), :user_id, :filename)"
 	data = {
     	'message' : request.form['message'],
-    	'user_id' : session['user_id']
+    	'user_id' : session['user_id'],
+    	'filename' : filename
 		}
 	mysql.query_db(query, data)
 	#return to wall
