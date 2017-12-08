@@ -99,6 +99,6 @@ ul {
 	margin-right: 500px;
 /*	margin-left: 1em;*/
 }
-#messages img {
-	width: 400px;
+#messages img, video {
+	max-width: 400px;
 }

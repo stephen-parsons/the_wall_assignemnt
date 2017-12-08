@@ -16,7 +16,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif', 'mp4'])
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 app.secret_key = "myKey"
 mysql = MySQLConnector(app, 'wall_assignment')
 
@@ -89,20 +89,31 @@ def get_info():
 #   	
 @app.route('/wall')
 def wall():
-# query that gets data of all messages from db
+	if session['user_id'] == "":
+		flash("Please login or register!")
+		return redirect('/')
+	# query that gets data of all messages from db
 	query = "SELECT CONCAT_WS(' ', users.first_name, users.last_name) as name, CONCAT(DATE_FORMAT(messages.created_at, '%M %D %Y'),' at ', TIME_FORMAT(messages.created_at, '%r')) as timestamp, messages.id as message_id, messages.message as message, messages.user_id as user_id, messages.filename as filename FROM messages JOIN users on users.id = messages.user_id"
 	messages = mysql.query_db(query)
 	query = "SELECT CONCAT_WS(' ', users.first_name, users.last_name) as name, CONCAT(DATE_FORMAT(comments.created_at, '%M %D %Y'),' at ', TIME_FORMAT(comments.created_at, '%r')) as timestamp, comments.id as comment_id, comments.comment as comment, comments.message_id as message_id FROM comments JOIN users on users.id = comments.user_id"
 	comments = mysql.query_db(query)
-	return render_template('/wall.html', messages=messages, comments=comments)
+	length = len(messages) - 1
+	return render_template('/wall.html', messages=messages, comments=comments, length=length)
 #
 @app.route('/submit_message', methods=["POST"])
 def submit_message():
 	#check file input
 	file = request.files['file']
+	# print file
+	# print allowed_file(file.filename)	
 	if file and allowed_file(file.filename):
 		filename = secure_filename(file.filename)
 		file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+	elif allowed_file(file.filename) == False:
+		flash("Choose a valid file type!")
+		return redirect('/wall')
+	elif file.filename == '':
+		filename = None		
 	# query that inserts message data to db
 	query = "INSERT INTO messages (message, created_at, updated_at, user_id, filename) VALUES (:message, NOW(), NOW(), :user_id, :filename)"
 	data = {
@@ -151,6 +162,13 @@ def delete_message(message_id):
 	data = {
 	'message_id' : message_id
 	}
+	query = "SELECT messages.filename FROM messages WHERE id = :message_id"
+	filenames = mysql.query_db(query, data)
+	for file in filenames:
+		if file['filename'] != None:
+			os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file['filename']))
+	query = "DELETE FROM comments WHERE message_id = :message_id"
+	mysql.query_db(query, data)
 	query = "DELETE FROM comments WHERE message_id = :message_id"
 	mysql.query_db(query, data)
 	query = "DELETE FROM messages WHERE id = :message_id"
@@ -160,4 +178,4 @@ def delete_message(message_id):
 def logout():
 	flash("Succesfully logged out!")
 	return redirect('/')
-app.run(debug=True)		
+app.run(debug=True, host="0.0.0.0")		

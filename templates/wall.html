@@ -25,42 +25,52 @@
 			<h4>Post a message</h4>
 			<form action="/submit_message" method="post" enctype="multipart/form-data">
 				<textarea class="form-control" rows="5" name="message"></textarea>
-				<label for="file">Upload an image!</label>
+				{% with messages = get_flashed_messages() %}
+					{% if messages %}
+				      	{% for message in messages %}
+					      	{% if message != "Login info not found!" %}
+					      	<div class="flash">
+					        	<p>{{message}}</p>
+					        </div>
+					        {% endif %}
+				    	{% endfor %}
+					{% endif %}
+				{% endwith %}
+				<label for="file">Upload an image or mp4! (max file size 8MB)</label>
 				<input type="file" name="file"><br>
 				<button type="submit" name="submit" value="Submit">Post Message</button>
 			</form>
 		</div>
 		<div id="messages">
 			{% if messages != [] %}
-				{% for message in messages %}
-				<h5>Message #{{message['message_id']}} - {{message['name']}} - {{message['timestamp']}}</h5>
+				{% for x in range(length, -1, -1) %}
+				<h5>Message #{{messages[x]['message_id']}} - {{messages[x]['name']}} - {{messages[x]['timestamp']}}</h5>
 				<p>
-					{{message['message']}}	
+					{{messages[x]['message']}}	
 				</p>
-					{% if message['filename'] != None %}
-						{% if message['filename'].endswith('.mp4'): %}
+					{% if messages[x]['filename'] != None %}
+						{% if messages[x]['filename'].endswith('.mp4'): %}
 						<video width="400" controls>
-  							<source src="static/uploads/{{message['filename']}}" type="video/mp4">
-  						</video>
+  							<source src="static/uploads/{{messages[x]['filename']}}" type="video/mp4">
+  						</video><br>
 						{% else: %}
-						<img src="static/uploads/{{message['filename']}}" alt="bad dir"><br><br>
+						<img src="static/uploads/{{messages[x]['filename']}}" alt="bad dir"><br><br>
 						{% endif %}
 					{% endif %}
-					{% if message['user_id'] == session['user_id']%}
+					{% if messages[x]['user_id'] == session['user_id']%}
 					<form>
-						<button formaction="/delete_msg/{{message['message_id']}}" formmethod="post">Delete message</button>
+						<button formaction="/delete_msg/{{messages[x]['message_id']}}" formmethod="post">Delete message</button>
 					</form><br>	
 					{% endif %}	
 				<div id="comments" class="indent">
 					{% for comment in comments %}
-						{% if comment['message_id'] == message['message_id'] %}
+						{% if comment['message_id'] == messages[x]['message_id'] %}
 					<h5>{{comment['name']}} - {{comment['timestamp']}}</h5>
 					<p>{{comment['comment']}}</p>
 						{% endif %}
 					{% endfor %}	
 					<div class="form-group">
-						<form class="comment" action="/submit_comment/{{message['message_id']}}" method="post">
-<!-- 							<input type="hidden" value="{{message['message_id']}}" name="message_id"> -->
+						<form class="comment" action="/submit_comment/{{messages[x]['message_id']}}" method="post">
 							<textarea class="form-control" rows="2" name="comment"></textarea><br>
 							<button type="submit" name="submit" value="Submit">Post Comment</button>
 						</form>
